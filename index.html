@@ -513,7 +513,7 @@
 var MY_PICKS = ['Rengar','Graves','Viego','Talon','Vi'];
 var selPick = 'all';
 var selFilter = 'all';
-var selResult = 'win';
+var chosenResult = 'win';
 var editIdx = null;
 
 var DEFAULT_DATA = [
@@ -619,7 +619,7 @@ function openModal(idx) {
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
 function selResultFn(r) {
-  selResult = r;
+  chosenResult = r;
   ['win','even','lose'].forEach(function(x) {
     document.getElementById('r-' + x).className = 'r-opt' + (x===r ? ' sel-'+x : '');
   });
@@ -633,7 +633,7 @@ function saveEntry() {
   var entry = {
     enemy: enemy,
     myPick: document.getElementById('inp-mypick').value,
-    result: selResult,
+    result: chosenResult,
     tip: document.getElementById('inp-tip').value.trim()
   };
   if (editIdx !== null) { data[editIdx] = entry; } else { data.unshift(entry); }
