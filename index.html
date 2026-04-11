@@ -488,6 +488,8 @@
         <option value="Viego">Viego</option>
         <option value="Talon">Talon</option>
         <option value="Vi">Vi</option>
+        <option value="KhaZix">Kha'Zix</option>
+        <option value="Ekko">Ekko</option>
       </select>
     </div>
     <div class="form-group">
@@ -510,18 +512,31 @@
 </div>
 
 <script>
-var MY_PICKS = ['Rengar','Graves','Viego','Talon','Vi'];
+var MY_PICKS = ['Rengar','Graves','Viego','Talon','Vi','KhaZix','Ekko'];
+var PICK_LABELS = {'Rengar':'Rengar','Graves':'Graves','Viego':'Viego','Talon':'Talon','Vi':'Vi','KhaZix':"Kha'Zix",'Ekko':'Ekko'};
 var selPick = 'all';
 var selFilter = 'all';
-var chosenResult = 'win';
+var selResult = 'win';
 var editIdx = null;
 
 var DEFAULT_DATA = [
-  { enemy: 'Lee Sin', myPick: 'Rengar', result: 'lose', tip: 'Te gana 1v1 nivel 3. No invadas su lado temprano. Esperá nivel 6 para buscar picks, jugá por skirmishes con tus laners.' },
-  { enemy: 'Hecarim', myPick: 'Graves', result: 'win', tip: 'Le ganás de lejos. Cleareas antes que él. Invadelo en su segundo camp nivel 3, tiene poco rango para responderte.' },
-  { enemy: 'Amumu', myPick: 'Rengar', result: 'win', tip: 'Cleareas más rápido, invadalo antes que llegue a su segundo camp. Llameale el scuttle primer respawn.' },
-  { enemy: 'Vi', myPick: 'Talon', result: 'even', tip: 'No la busques en 1v1 pre-6. Post-6 ganás si llegás en burst antes que ella use R. Warda su lado y robale camps.' },
-  { enemy: 'Nocturne', myPick: 'Viego', result: 'lose', tip: 'Te gana en cualquier 1v1 early. Jugá por farming rápido y ganks, no lo busques directo. Post-6 podés stealearle el fight con tu R.' }
+  { enemy: 'Morde', myPick: 'Rengar', result: 'even', tip: 'Se gana early se pierde mid/late.' },
+  { enemy: 'Nocturne', myPick: 'Rengar', result: 'win', tip: 'Early se gana si se invade/no tiene cds. Mid game es necesario entrarle con R si o si, sino gana.' },
+  { enemy: 'Lee Sin', myPick: 'Rengar', result: 'lose', tip: '1v1 imposible, jugar en torno a escaramuzas.' },
+  { enemy: 'Amumu', myPick: 'Rengar', result: 'win', tip: 'Invadir en bufo lvl 3.' },
+  { enemy: 'Jarvan IV', myPick: 'Graves', result: 'win', tip: 'Hay que holdear la E, sino te mata en early.' },
+  { enemy: 'Warwick', myPick: 'Graves', result: 'lose', tip: 'Warwick puede seguir la E con su Q, lo mejor es jugar a invadir cuando se revele.' },
+  { enemy: 'Shyvanna', myPick: 'Graves', result: 'win', tip: 'Invade a dos manos, no confiarse que mete buen dmg.' },
+  { enemy: 'Hecarim', myPick: 'Graves', result: 'win', tip: 'Le ganas de lejos. Cleareas antes que el. Invadelo en su segundo camp nivel 3, tiene poco rango para responderte.' },
+  { enemy: 'Graves', myPick: 'Viego', result: 'even', tip: 'Evitar 1v1 hasta el matakrakens, defender la jungla si es posible, sino mirror.' },
+  { enemy: 'Nocturne', myPick: 'Viego', result: 'lose', tip: 'Gana todos los 1v1 early.' },
+  { enemy: 'Naafiri', myPick: 'Talon', result: 'win', tip: 'La stompeas, menos en primeros 3 lvls. Invadi.' },
+  { enemy: 'Ekko', myPick: 'Talon', result: 'win', tip: 'Le ganas, juga a invadirle.' },
+  { enemy: 'Graves', myPick: 'Talon', result: 'win', tip: 'Puede invadir, pero se le gana el game contestando. Si vas even/ligeramente ahead tenes mucho mas dmg que el.' },
+  { enemy: 'Shaco', myPick: 'Talon', result: 'win', tip: 'Evitar pelear early, ward en blue, escalando ganas.' },
+  { enemy: 'Lee Sin', myPick: 'KhaZix', result: 'lose', tip: 'Te gana 1v1 nivel 3. No invadas su lado temprano. Espera nivel 6 para buscar picks, juga por skirmishes con tus laners.' },
+  { enemy: 'Hecarim', myPick: 'KhaZix', result: 'win', tip: 'Cleareas antes que el. Invadelo en su segundo camp nivel 3, tiene poco rango para responderte.' },
+  { enemy: 'Graves', myPick: 'KhaZix', result: 'lose', tip: 'Evitar el 1v1 directo, juga por flancos y targets aislados. Ganas post-6 con evolucion.' }
 ];
 
 var data = [];
@@ -538,7 +553,8 @@ function renderPicks() {
   var row = document.getElementById('picks-row');
   var html = '<button class="pick-chip' + (selPick==='all'?' active':'') + '" onclick="setPick(\'all\',this)">Todos</button>';
   MY_PICKS.forEach(function(p) {
-    html += '<button class="pick-chip' + (selPick===p?' active':'') + '" onclick="setPick(\'' + p + '\',this)">' + p + '</button>';
+    var label = PICK_LABELS[p] || p;
+    html += '<button class="pick-chip' + (selPick===p?' active':'') + '" onclick="setPick(\'' + p + '\',this)">' + label + '</button>';
   });
   row.innerHTML = html;
 }
@@ -577,7 +593,7 @@ function renderList() {
     return '<div class="card r-' + d.result + '">' +
       '<div class="card-top">' +
         '<div class="enemy-name">' + d.enemy + '</div>' +
-        (d.myPick ? '<span class="my-pick-tag">' + d.myPick + '</span>' : '') +
+        (d.myPick ? '<span class="my-pick-tag">' + (PICK_LABELS[d.myPick] || d.myPick) + '</span>' : '') +
         '<span class="result-badge ' + d.result + '">' + labels[d.result] + '</span>' +
       '</div>' +
       (d.tip ? '<div class="tip-text">' + d.tip + '</div>' : '') +
@@ -619,7 +635,7 @@ function openModal(idx) {
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
 function selResultFn(r) {
-  chosenResult = r;
+  selResult = r;
   ['win','even','lose'].forEach(function(x) {
     document.getElementById('r-' + x).className = 'r-opt' + (x===r ? ' sel-'+x : '');
   });
@@ -633,7 +649,7 @@ function saveEntry() {
   var entry = {
     enemy: enemy,
     myPick: document.getElementById('inp-mypick').value,
-    result: chosenResult,
+    result: selResult,
     tip: document.getElementById('inp-tip').value.trim()
   };
   if (editIdx !== null) { data[editIdx] = entry; } else { data.unshift(entry); }
